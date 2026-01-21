@@ -134,9 +134,4 @@ Future Interns – Full Stack Web Development Intern
 ⭐ Acknowledgment
 
 I would like to thank Future Interns for providing this opportunity to work on real-world full stack projects and enhance my development skills.
-Run these commands:
 
-```bash
-git add README.md
-git commit -m "Added README for Task 2 Mini CRM"
-git push
