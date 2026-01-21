@@ -76,8 +76,8 @@ miniCRM/
 ## ⚙️ Installation & Setup
 
 ### 1️⃣ Clone the Repository
-```bash
-git clone https://github.com/jashodhaborana09/FUTURE_FS_02.git
+git clone
+https://github.com/jashodhaborana09/FUTURE_FS_02.git
 Step 2: Navigate to Project Folder
 cd miniCRM
 Step 3: Install Dependencies
