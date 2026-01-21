@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini CRM</title>
+  
+  <!-- CSS Styling -->
+  <style>
+    /* Body Styling */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+      margin: 20px;
+      color: #333;
+    }
+
+    h1, h2 {
+      color: #4a4a4a;
+    }
+
+    /* Form Styling */
+    input[type="text"], input[type="email"] {
+      padding: 8px;
+      margin: 5px 5px 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 200px;
+    }
+
+    button {
+      padding: 8px 15px;
+      margin: 5px 5px 10px 0;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    /* Table Styling */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 20px;
+      box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+      background-color: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      color: #333;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      table, tr, th, td {
+        display: block;
+        width: 100%;
+      }
+      tr { margin-bottom: 15px; }
+      th { background-color: #eee; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Mini CRM</h1>
+
+  <h2>Add Customer</h2>
+  <input type="text" id="name" placeholder="Name">
+  <input type="email" id="email" placeholder="Email">
+  <input type="text" id="phone" placeholder="Phone">
+  <input type="text" id="address" placeholder="Address">
+  <button onclick="addCustomer()">Add</button>
+
+  <h2>Customers</h2>
+  <table id="customersTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Address</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Customers will appear here -->
+    </tbody>
+  </table>
+
+  <!-- JS Script -->
+  <script>
+    const apiUrl = "http://localhost:5000/customers";
+
+    // Fetch all customers
+    async function fetchCustomers() {
+      const res = await fetch(apiUrl);
+      const data = await res.json();
+      const tbody = document.querySelector("#customersTable tbody");
+      tbody.innerHTML = "";
+      data.forEach(c => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${c.name}</td>
+          <td>${c.email}</td>
+          <td>${c.phone}</td>
+          <td>${c.address || ""}</td>
+          <td>
+            <button onclick="deleteCustomer('${c._id}')">Delete</button>
+            <button onclick="editCustomer('${c._id}', '${c.name}', '${c.email}', '${c.phone}', '${c.address || ""}')">Edit</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Add new customer
+    async function addCustomer() {
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const address = document.getElementById("address").value;
+
+      if (!name || !email || !phone) {
+        alert("Name, Email, and Phone are required!");
+        return;
+      }
+
+      await fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, address })
+      });
+
+      document.getElementById("name").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("phone").value = "";
+      document.getElementById("address").value = "";
+
+      fetchCustomers();
+    }
+
+    // Delete customer
+    async function deleteCustomer(id) {
+      if (confirm("Are you sure you want to delete?")) {
+        await fetch(`${apiUrl}/${id}`, { method: "DELETE" });
+        fetchCustomers();
+      }
+    }
+
+    // Edit customer
+    function editCustomer(id, name, email, phone, address) {
+      const newName = prompt("Enter new name:", name) || name;
+      const newEmail = prompt("Enter new email:", email) || email;
+      const newPhone = prompt("Enter new phone:", phone) || phone;
+      const newAddress = prompt("Enter new address:", address) || address;
+
+      fetch(`${apiUrl}/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName, email: newEmail, phone: newPhone, address: newAddress })
+      }).then(fetchCustomers);
+    }
+
+    // Load customers on page load
+    window.onload = fetchCustomers;
+  </script>
+</body>
+</html>
